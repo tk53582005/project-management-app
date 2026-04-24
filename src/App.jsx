@@ -9,7 +9,9 @@ const API_URL =
 function App() {
   const auth = useAuth();
 
-  const signOutRedirect = () => {
+  const signOutRedirect = async () => {
+    await auth.removeUser();
+
     const clientId = "4vrs82vcgc93shqql5bdngdrfd";
     const logoutUri = window.location.origin;
     const cognitoDomain =
