@@ -9,6 +9,17 @@ const API_URL =
 function App() {
   const auth = useAuth();
 
+  const signOutRedirect = () => {
+    const clientId = "4vrs82vcgc93shqql5bdngdrfd";
+    const logoutUri = window.location.origin;
+    const cognitoDomain =
+      "https://ap-northeast-1lf0frqj4b.auth.ap-northeast-1.amazoncognito.com";
+
+    window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(
+      logoutUri
+    )}`;
+  };
+
   const [projects, setProjects] = useState([]);
   const [projectName, setProjectName] = useState("");
   const [clientName, setClientName] = useState("");
@@ -193,7 +204,7 @@ function App() {
           </div>
 
           <button
-            onClick={() => auth.removeUser()}
+            onClick={signOutRedirect}
             className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
           >
             ログアウト
