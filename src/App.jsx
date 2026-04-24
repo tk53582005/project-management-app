@@ -9,6 +9,11 @@ const API_URL =
 function App() {
   const auth = useAuth();
 
+  const getAuthHeaders = () => ({
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${auth.user?.access_token}`,
+  });
+
   const signOutRedirect = async () => {
     await auth.removeUser();
 
@@ -35,7 +40,10 @@ function App() {
       setLoading(true);
       setError("");
 
-      const res = await fetch(API_URL);
+      const res = await fetch(API_URL, {
+        headers: getAuthHeaders(),
+      });
+
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
       const data = await res.json();
@@ -54,10 +62,10 @@ function App() {
   };
 
   useEffect(() => {
-    if (auth.isAuthenticated) {
+    if (auth.isAuthenticated && auth.user?.access_token) {
       fetchProjects();
     }
-  }, [auth.isAuthenticated]);
+  }, [auth.isAuthenticated, auth.user?.access_token]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -72,9 +80,7 @@ function App() {
 
       const res = await fetch(API_URL, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ projectName, clientName }),
       });
 
@@ -95,6 +101,7 @@ function App() {
 
       const res = await fetch(`${API_URL}/${projectId}`, {
         method: "DELETE",
+        headers: getAuthHeaders(),
       });
 
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
@@ -116,9 +123,7 @@ function App() {
 
       const res = await fetch(`${API_URL}/${projectId}`, {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: getAuthHeaders(),
         body: JSON.stringify({ status: nextStatus }),
       });
 
