@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "react-oidc-context";
 import ProjectForm from "./ProjectForm";
 import ProjectList from "./ProjectList";
 
-const API_URL = "https://xo41qf1cu1.execute-api.ap-northeast-1.amazonaws.com/projects";
+const API_URL =
+  "https://xo41qf1cu1.execute-api.ap-northeast-1.amazonaws.com/projects";
 
 function App() {
+  const auth = useAuth();
+
   const [projects, setProjects] = useState([]);
   const [projectName, setProjectName] = useState("");
   const [clientName, setClientName] = useState("");
@@ -37,8 +41,10 @@ function App() {
   };
 
   useEffect(() => {
-    fetchProjects();
-  }, []);
+    if (auth.isAuthenticated) {
+      fetchProjects();
+    }
+  }, [auth.isAuthenticated]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -132,14 +138,66 @@ function App() {
     return `${baseClass} ${filter === value ? activeClass : inactiveClass}`;
   };
 
+  if (auth.isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-100 text-slate-700">
+        Loading...
+      </div>
+    );
+  }
+
+  if (auth.error) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-100 text-red-600">
+        Error: {auth.error.message}
+      </div>
+    );
+  }
+
+  if (!auth.isAuthenticated) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-100">
+        <div className="w-full max-w-md rounded-2xl bg-white p-8 shadow-sm">
+          <h1 className="text-2xl font-bold text-slate-900">
+            Project Management App
+          </h1>
+          <p className="mt-2 text-sm text-slate-600">
+            ログインするとプロジェクト管理画面を利用できます。
+          </p>
+
+          <button
+            onClick={() => auth.signinRedirect()}
+            className="mt-6 w-full rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
+          >
+            ログイン
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-100">
       <div className="mx-auto max-w-5xl px-4 py-10">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-slate-900">Projects</h1>
-          <p className="mt-2 text-sm text-slate-600">
-            React + API Gateway + Lambda + DynamoDB CRUD App
-          </p>
+        <div className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900">Projects</h1>
+            <p className="mt-2 text-sm text-slate-600">
+              React + API Gateway + Lambda + DynamoDB CRUD App
+            </p>
+            {auth.user?.profile?.email && (
+              <p className="mt-1 text-xs text-slate-500">
+                Logged in as: {auth.user.profile.email}
+              </p>
+            )}
+          </div>
+
+          <button
+            onClick={() => auth.removeUser()}
+            className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-100"
+          >
+            ログアウト
+          </button>
         </div>
 
         <ProjectForm
