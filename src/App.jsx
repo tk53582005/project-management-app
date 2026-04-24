@@ -3,8 +3,11 @@ import { useAuth } from "react-oidc-context";
 import ProjectForm from "./ProjectForm";
 import ProjectList from "./ProjectList";
 
-const API_URL =
-  "https://xo41qf1cu1.execute-api.ap-northeast-1.amazonaws.com/projects";
+const API_BASE_URL =
+  "https://xo41qf1cu1.execute-api.ap-northeast-1.amazonaws.com";
+
+const PROJECTS_API_URL = `${API_BASE_URL}/projects`;
+const INVOICES_API_URL = `${API_BASE_URL}/invoices`;
 
 function App() {
   const auth = useAuth();
@@ -30,6 +33,12 @@ function App() {
   const [projects, setProjects] = useState([]);
   const [projectName, setProjectName] = useState("");
   const [clientName, setClientName] = useState("");
+
+  const [invoices, setInvoices] = useState([]);
+  const [invoiceProjectId, setInvoiceProjectId] = useState("");
+  const [amount, setAmount] = useState("");
+  const [dueDate, setDueDate] = useState("");
+
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
@@ -40,7 +49,7 @@ function App() {
       setLoading(true);
       setError("");
 
-      const res = await fetch(API_URL, {
+      const res = await fetch(PROJECTS_API_URL, {
         headers: getAuthHeaders(),
       });
 
@@ -53,17 +62,45 @@ function App() {
       );
 
       setProjects(sorted);
+
+      if (!invoiceProjectId && sorted.length > 0) {
+        setInvoiceProjectId(sorted[0].projectId);
+      }
     } catch (err) {
-      console.error("Fetch error:", err);
+      console.error("Fetch projects error:", err);
       setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
+  const fetchInvoices = async () => {
+    try {
+      setError("");
+
+      const res = await fetch(INVOICES_API_URL, {
+        headers: getAuthHeaders(),
+      });
+
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+      const data = await res.json();
+
+      const sorted = [...data].sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+
+      setInvoices(sorted);
+    } catch (err) {
+      console.error("Fetch invoices error:", err);
+      setError(err.message);
+    }
+  };
+
   useEffect(() => {
     if (auth.isAuthenticated && auth.user?.access_token) {
       fetchProjects();
+      fetchInvoices();
     }
   }, [auth.isAuthenticated, auth.user?.access_token]);
 
@@ -78,7 +115,7 @@ function App() {
     try {
       setError("");
 
-      const res = await fetch(API_URL, {
+      const res = await fetch(PROJECTS_API_URL, {
         method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify({ projectName, clientName }),
@@ -90,7 +127,7 @@ function App() {
       setClientName("");
       fetchProjects();
     } catch (err) {
-      console.error("Create error:", err);
+      console.error("Create project error:", err);
       setError(err.message);
     }
   };
@@ -99,7 +136,7 @@ function App() {
     try {
       setError("");
 
-      const res = await fetch(`${API_URL}/${projectId}`, {
+      const res = await fetch(`${PROJECTS_API_URL}/${projectId}`, {
         method: "DELETE",
         headers: getAuthHeaders(),
       });
@@ -108,7 +145,7 @@ function App() {
 
       fetchProjects();
     } catch (err) {
-      console.error("Delete error:", err);
+      console.error("Delete project error:", err);
       setError(err.message);
     }
   };
@@ -121,7 +158,7 @@ function App() {
       if (currentStatus === "planned") nextStatus = "in-progress";
       else if (currentStatus === "in-progress") nextStatus = "completed";
 
-      const res = await fetch(`${API_URL}/${projectId}`, {
+      const res = await fetch(`${PROJECTS_API_URL}/${projectId}`, {
         method: "PUT",
         headers: getAuthHeaders(),
         body: JSON.stringify({ status: nextStatus }),
@@ -131,7 +168,78 @@ function App() {
 
       fetchProjects();
     } catch (err) {
-      console.error("Update error:", err);
+      console.error("Update project error:", err);
+      setError(err.message);
+    }
+  };
+
+  const handleCreateInvoice = async (e) => {
+    e.preventDefault();
+
+    if (!invoiceProjectId || !amount.trim() || !dueDate) {
+      setError("Project, amount and due date are required.");
+      return;
+    }
+
+    try {
+      setError("");
+
+      const res = await fetch(INVOICES_API_URL, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          projectId: invoiceProjectId,
+          amount,
+          dueDate,
+        }),
+      });
+
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+      setAmount("");
+      setDueDate("");
+      fetchInvoices();
+    } catch (err) {
+      console.error("Create invoice error:", err);
+      setError(err.message);
+    }
+  };
+
+  const handleUpdateInvoiceStatus = async (invoiceId, currentStatus) => {
+    try {
+      setError("");
+
+      const nextStatus = currentStatus === "paid" ? "pending" : "paid";
+
+      const res = await fetch(`${INVOICES_API_URL}/${invoiceId}`, {
+        method: "PUT",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ status: nextStatus }),
+      });
+
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+      fetchInvoices();
+    } catch (err) {
+      console.error("Update invoice error:", err);
+      setError(err.message);
+    }
+  };
+
+  const handleDeleteInvoice = async (invoiceId) => {
+    try {
+      setError("");
+
+      const res = await fetch(`${INVOICES_API_URL}/${invoiceId}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+
+      fetchInvoices();
+    } catch (err) {
+      console.error("Delete invoice error:", err);
       setError(err.message);
     }
   };
@@ -146,6 +254,11 @@ function App() {
 
     return matchesFilter && matchesSearch;
   });
+
+  const getProjectName = (projectId) => {
+    const project = projects.find((p) => p.projectId === projectId);
+    return project ? project.projectName : projectId;
+  };
 
   const getFilterButtonClass = (value) => {
     const baseClass = "rounded-lg px-4 py-2 text-sm font-medium transition";
@@ -280,6 +393,129 @@ function App() {
           onDelete={handleDelete}
           onUpdateStatus={handleUpdateStatus}
         />
+
+        <section className="mt-12">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold text-slate-900">Invoices</h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Create and manage invoices linked to your projects.
+            </p>
+          </div>
+
+          <form
+            onSubmit={handleCreateInvoice}
+            className="mb-6 rounded-2xl bg-white p-6 shadow-sm"
+          >
+            <h3 className="mb-4 text-lg font-semibold text-slate-900">
+              Create Invoice
+            </h3>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  Project
+                </label>
+                <select
+                  value={invoiceProjectId}
+                  onChange={(e) => setInvoiceProjectId(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                >
+                  <option value="">Select project</option>
+                  {projects.map((project) => (
+                    <option key={project.projectId} value={project.projectId}>
+                      {project.projectName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  Amount
+                </label>
+                <input
+                  type="number"
+                  placeholder="10000"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                />
+              </div>
+
+              <div>
+                <label className="mb-1 block text-sm font-medium text-slate-700">
+                  Due date
+                </label>
+                <input
+                  type="date"
+                  value={dueDate}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                />
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              className="mt-5 rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
+            >
+              Create Invoice
+            </button>
+          </form>
+
+          <div className="space-y-3">
+            {invoices.length === 0 ? (
+              <div className="rounded-2xl border border-slate-200 bg-white px-4 py-6 text-sm text-slate-500 shadow-sm">
+                No invoices yet.
+              </div>
+            ) : (
+              invoices.map((invoice) => (
+                <div
+                  key={invoice.invoiceId}
+                  className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
+                >
+                  <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+                    <div>
+                      <h3 className="text-lg font-semibold text-slate-900">
+                        ¥{Number(invoice.amount).toLocaleString()}
+                      </h3>
+                      <p className="mt-1 text-sm text-slate-600">
+                        Project: {getProjectName(invoice.projectId)}
+                      </p>
+                      <p className="mt-1 text-sm text-slate-600">
+                        Due: {invoice.dueDate || "-"}
+                      </p>
+                      <p className="mt-1 text-sm text-slate-600">
+                        Status:{" "}
+                        <span className="font-medium">{invoice.status}</span>
+                      </p>
+                    </div>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() =>
+                          handleUpdateInvoiceStatus(
+                            invoice.invoiceId,
+                            invoice.status
+                          )
+                        }
+                        className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-500"
+                      >
+                        Update
+                      </button>
+                      <button
+                        onClick={() => handleDeleteInvoice(invoice.invoiceId)}
+                        className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </section>
       </div>
     </div>
   );
