@@ -46,7 +46,7 @@ React + AWS (API Gateway / Lambda / DynamoDB / Cognito) を用いて、フロン
 
 ## UI / UX Improvements
 
-以下のような**実務を意識したUX改善**を実装しています。
+以下のような実務を意識したUX改善を実装しています。
 
 - フォームバリデーション（touched state）
 - 入力後のみエラーメッセージ表示
