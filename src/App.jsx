@@ -26,7 +26,7 @@ function App() {
       "https://ap-northeast-1lf0frqj4b.auth.ap-northeast-1.amazoncognito.com";
 
     window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(
-      logoutUri
+      logoutUri,
     )}`;
   };
 
@@ -68,14 +68,10 @@ function App() {
       const data = await res.json();
 
       const sorted = [...data].sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
       );
 
       setProjects(sorted);
-
-      if (!invoiceProjectId && sorted.length > 0) {
-        setInvoiceProjectId(sorted[0].projectId);
-      }
     } catch (err) {
       console.error("Fetch projects error:", err);
       setError(err.message);
@@ -97,7 +93,7 @@ function App() {
       const data = await res.json();
 
       const sorted = [...data].sort(
-        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
       );
 
       setInvoices(sorted);
@@ -536,7 +532,7 @@ function App() {
                         Status:
                         <span
                           className={`ml-2 inline-block rounded-full px-3 py-1 text-xs font-medium ${getInvoiceStatusClass(
-                            invoice.status
+                            invoice.status,
                           )}`}
                         >
                           {invoice.status}
@@ -549,7 +545,7 @@ function App() {
                         onClick={() =>
                           handleUpdateInvoiceStatus(
                             invoice.invoiceId,
-                            invoice.status
+                            invoice.status,
                           )
                         }
                         className="cursor-pointer rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-500 active:scale-95"
