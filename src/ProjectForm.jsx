@@ -4,8 +4,9 @@ function ProjectForm({
   setProjectName,
   setClientName,
   handleSubmit,
-  loading, // ← 追加
 }) {
+  const isDisabled = !projectName.trim() || !clientName.trim();
+
   return (
     <form
       onSubmit={handleSubmit}
@@ -34,8 +35,8 @@ function ProjectForm({
 
         <button
           type="submit"
-          disabled={loading || !projectName.trim() || !clientName.trim()}
-          className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={isDisabled}
+          className="cursor-pointer rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
         >
           Create Project
         </button>
