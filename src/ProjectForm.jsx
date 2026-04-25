@@ -16,9 +16,32 @@ function ProjectForm({
   const isClientNameEmpty = !clientName.trim();
   const isDisabled = isProjectNameEmpty || isClientNameEmpty;
 
+  // ⭐ 修正ポイント
+  const handleFormSubmit = async (e) => {
+    e.preventDefault();
+
+    // まず全部touchedにする
+    setTouched({
+      projectName: true,
+      clientName: true,
+    });
+
+    // バリデーションNGなら止める
+    if (isDisabled) return;
+
+    // 親の処理実行
+    await handleSubmit(e);
+
+    // ⭐ 成功後リセット
+    setTouched({
+      projectName: false,
+      clientName: false,
+    });
+  };
+
   return (
     <form
-      onSubmit={handleSubmit}
+      onSubmit={handleFormSubmit}
       className="mb-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm"
     >
       <h2 className="mb-4 text-lg font-semibold text-slate-900">
