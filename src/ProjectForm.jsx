@@ -12,31 +12,33 @@ function ProjectForm({
     clientName: false,
   });
 
+  const [isCreating, setIsCreating] = useState(false);
+
   const isProjectNameEmpty = !projectName.trim();
   const isClientNameEmpty = !clientName.trim();
   const isDisabled = isProjectNameEmpty || isClientNameEmpty;
 
-  // ⭐ 修正ポイント
   const handleFormSubmit = async (e) => {
     e.preventDefault();
 
-    // まず全部touchedにする
     setTouched({
       projectName: true,
       clientName: true,
     });
 
-    // バリデーションNGなら止める
     if (isDisabled) return;
 
-    // 親の処理実行
-    await handleSubmit(e);
+    try {
+      setIsCreating(true);
+      await handleSubmit(e);
 
-    // ⭐ 成功後リセット
-    setTouched({
-      projectName: false,
-      clientName: false,
-    });
+      setTouched({
+        projectName: false,
+        clientName: false,
+      });
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   return (
@@ -93,10 +95,10 @@ function ProjectForm({
 
         <button
           type="submit"
-          disabled={isDisabled}
+          disabled={isDisabled || isCreating}
           className="cursor-pointer rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Create Project
+          {isCreating ? "Creating..." : "Create Project"}
         </button>
       </div>
     </form>
