@@ -40,9 +40,17 @@ function App() {
   const [dueDate, setDueDate] = useState("");
 
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    if (success) {
+      const timer = setTimeout(() => setSuccess(""), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [success]);
 
   const fetchProjects = async () => {
     try {
@@ -109,11 +117,13 @@ function App() {
 
     if (!projectName.trim() || !clientName.trim()) {
       setError("Project name and client name are required.");
+      setSuccess("");
       return;
     }
 
     try {
       setError("");
+      setSuccess("");
 
       const res = await fetch(PROJECTS_API_URL, {
         method: "POST",
@@ -125,6 +135,7 @@ function App() {
 
       setProjectName("");
       setClientName("");
+      setSuccess("Project created successfully");
       fetchProjects();
     } catch (err) {
       console.error("Create project error:", err);
@@ -133,8 +144,11 @@ function App() {
   };
 
   const handleDelete = async (projectId) => {
+    if (!window.confirm("本当にこのプロジェクトを削除しますか？")) return;
+
     try {
       setError("");
+      setSuccess("");
 
       const res = await fetch(`${PROJECTS_API_URL}/${projectId}`, {
         method: "DELETE",
@@ -143,6 +157,7 @@ function App() {
 
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
+      setSuccess("Project deleted");
       fetchProjects();
     } catch (err) {
       console.error("Delete project error:", err);
@@ -153,6 +168,7 @@ function App() {
   const handleUpdateStatus = async (projectId, currentStatus) => {
     try {
       setError("");
+      setSuccess("");
 
       let nextStatus = "planned";
       if (currentStatus === "planned") nextStatus = "in-progress";
@@ -166,6 +182,7 @@ function App() {
 
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
+      setSuccess("Project status updated");
       fetchProjects();
     } catch (err) {
       console.error("Update project error:", err);
@@ -178,11 +195,13 @@ function App() {
 
     if (!invoiceProjectId || !amount.trim() || !dueDate) {
       setError("Project, amount and due date are required.");
+      setSuccess("");
       return;
     }
 
     try {
       setError("");
+      setSuccess("");
 
       const res = await fetch(INVOICES_API_URL, {
         method: "POST",
@@ -198,6 +217,7 @@ function App() {
 
       setAmount("");
       setDueDate("");
+      setSuccess("Invoice created");
       fetchInvoices();
     } catch (err) {
       console.error("Create invoice error:", err);
@@ -208,6 +228,7 @@ function App() {
   const handleUpdateInvoiceStatus = async (invoiceId, currentStatus) => {
     try {
       setError("");
+      setSuccess("");
 
       const nextStatus = currentStatus === "paid" ? "pending" : "paid";
 
@@ -219,6 +240,7 @@ function App() {
 
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
+      setSuccess("Invoice status updated");
       fetchInvoices();
     } catch (err) {
       console.error("Update invoice error:", err);
@@ -227,8 +249,11 @@ function App() {
   };
 
   const handleDeleteInvoice = async (invoiceId) => {
+    if (!window.confirm("本当にこの請求書を削除しますか？")) return;
+
     try {
       setError("");
+      setSuccess("");
 
       const res = await fetch(`${INVOICES_API_URL}/${invoiceId}`, {
         method: "DELETE",
@@ -237,6 +262,7 @@ function App() {
 
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
+      setSuccess("Invoice deleted");
       fetchInvoices();
     } catch (err) {
       console.error("Delete invoice error:", err);
@@ -377,7 +403,7 @@ function App() {
         </div>
 
         {loading && (
-          <div className="mb-4 rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-600 shadow-sm">
+          <div className="mb-4 animate-pulse rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-600 shadow-sm">
             Loading...
           </div>
         )}
@@ -385,6 +411,12 @@ function App() {
         {error && (
           <div className="mb-4 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-red-600 shadow-sm">
             Error: {error}
+          </div>
+        )}
+
+        {success && (
+          <div className="mb-4 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-700 shadow-sm">
+            {success}
           </div>
         )}
 
