@@ -13,7 +13,7 @@ function ProjectItem({ project, onDelete, onUpdateStatus }) {
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:shadow-md">
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div className="space-y-2">
           <h3 className="text-lg font-bold text-slate-900">
@@ -27,8 +27,13 @@ function ProjectItem({ project, onDelete, onUpdateStatus }) {
 
           <div className="flex items-center gap-2 text-sm text-slate-600">
             <span className="font-medium text-slate-800">Status:</span>
+
+            {/* ここが神改善 */}
             <span
-              className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusClasses(
+              onClick={() =>
+                onUpdateStatus(project.projectId, project.status)
+              }
+              className={`cursor-pointer rounded-full px-3 py-1 text-xs font-semibold transition hover:opacity-80 active:scale-95 ${getStatusClasses(
                 project.status
               )}`}
             >
@@ -43,15 +48,17 @@ function ProjectItem({ project, onDelete, onUpdateStatus }) {
 
         <div className="flex gap-2">
           <button
-            onClick={() => onUpdateStatus(project.projectId, project.status)}
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-500"
+            onClick={() =>
+              onUpdateStatus(project.projectId, project.status)
+            }
+            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-500 active:scale-95"
           >
             Update
           </button>
 
           <button
             onClick={() => onDelete(project.projectId)}
-            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500"
+            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500 active:scale-95"
           >
             Delete
           </button>
