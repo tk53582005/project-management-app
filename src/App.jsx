@@ -295,16 +295,16 @@ function App() {
     return `${baseClass} ${filter === value ? activeClass : inactiveClass}`;
   };
 
-  const getInvoiceStatusClass = (status) => {
-    switch (status) {
-      case "paid":
-        return "bg-green-100 text-green-700";
-      case "pending":
-        return "bg-yellow-100 text-yellow-700";
-      default:
-        return "bg-slate-100 text-slate-700";
-    }
-  };
+const getInvoiceStatusClass = (status) => {
+  switch (status) {
+    case "paid":
+      return "bg-green-600 text-white";
+    case "pending":
+      return "bg-yellow-400 text-black";
+    default:
+      return "bg-slate-200 text-slate-700";
+  }
+};
 
   if (auth.isLoading) {
     return (
