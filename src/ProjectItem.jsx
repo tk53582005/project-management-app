@@ -28,12 +28,9 @@ function ProjectItem({ project, onDelete, onUpdateStatus }) {
           <div className="flex items-center gap-2 text-sm text-slate-600">
             <span className="font-medium text-slate-800">Status:</span>
 
-            {/* ステータスクリックで変更 */}
+            {/* 表示のみ（クリック不可） */}
             <span
-              onClick={() =>
-                onUpdateStatus(project.projectId, project.status)
-              }
-              className={`cursor-pointer rounded-full px-3 py-1 text-xs font-semibold transition hover:opacity-80 active:scale-95 ${getStatusClasses(
+              className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusClasses(
                 project.status
               )}`}
             >
