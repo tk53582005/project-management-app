@@ -45,6 +45,8 @@ function App() {
     dueDate: false,
   });
 
+  const [isCreating, setIsCreating] = useState(false);
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(true);
@@ -215,6 +217,7 @@ function App() {
     }
 
     try {
+      setIsCreating(true);
       setError("");
       setSuccess("");
 
@@ -243,6 +246,8 @@ function App() {
     } catch (err) {
       console.error("Create invoice error:", err);
       setError(err.message);
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -555,10 +560,10 @@ function App() {
 
             <button
               type="submit"
-              disabled={isInvoiceDisabled}
+              disabled={isInvoiceDisabled || isCreating}
               className="mt-5 cursor-pointer rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              Create Invoice
+              {isCreating ? "Creating..." : "Create Invoice"}
             </button>
           </form>
 
