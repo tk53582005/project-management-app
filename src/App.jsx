@@ -295,6 +295,17 @@ function App() {
     return `${baseClass} ${filter === value ? activeClass : inactiveClass}`;
   };
 
+  const getInvoiceStatusClass = (status) => {
+    switch (status) {
+      case "paid":
+        return "bg-green-100 text-green-700";
+      case "pending":
+        return "bg-yellow-100 text-yellow-700";
+      default:
+        return "bg-slate-100 text-slate-700";
+    }
+  };
+
   if (auth.isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-100 text-slate-700">
@@ -518,8 +529,14 @@ function App() {
                         Due: {invoice.dueDate || "-"}
                       </p>
                       <p className="mt-1 text-sm text-slate-600">
-                        Status:{" "}
-                        <span className="font-medium">{invoice.status}</span>
+                        Status:
+                        <span
+                          className={`ml-2 inline-block rounded-full px-3 py-1 text-xs font-medium ${getInvoiceStatusClass(
+                            invoice.status
+                          )}`}
+                        >
+                          {invoice.status}
+                        </span>
                       </p>
                     </div>
 
