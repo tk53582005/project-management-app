@@ -300,7 +300,7 @@ const getInvoiceStatusClass = (status) => {
     case "paid":
       return "bg-green-600 text-white";
     case "pending":
-      return "bg-yellow-400 text-black";
+      return "bg-yellow-500 text-white";
     default:
       return "bg-slate-200 text-slate-700";
   }
