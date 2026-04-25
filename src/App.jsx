@@ -298,7 +298,7 @@ function App() {
 const getInvoiceStatusClass = (status) => {
   switch (status) {
     case "paid":
-      return "bg-green-600 text-white";
+      return "bg-emerald-600 text-white";
     case "pending":
       return "bg-yellow-500 text-white";
     default:
