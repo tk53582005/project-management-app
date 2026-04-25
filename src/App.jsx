@@ -39,13 +39,24 @@ function App() {
   const [amount, setAmount] = useState("");
   const [dueDate, setDueDate] = useState("");
 
+  const [invoiceTouched, setInvoiceTouched] = useState({
+    project: false,
+    amount: false,
+    dueDate: false,
+  });
+
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const isInvoiceDisabled = !invoiceProjectId || !amount.trim() || !dueDate;
+  const isInvoiceProjectEmpty = !invoiceProjectId;
+  const isAmountEmpty = !amount.trim();
+  const isDueDateEmpty = !dueDate;
+
+  const isInvoiceDisabled =
+    isInvoiceProjectEmpty || isAmountEmpty || isDueDateEmpty;
 
   useEffect(() => {
     if (success) {
@@ -191,7 +202,13 @@ function App() {
   const handleCreateInvoice = async (e) => {
     e.preventDefault();
 
-    if (!invoiceProjectId || !amount.trim() || !dueDate) {
+    setInvoiceTouched({
+      project: true,
+      amount: true,
+      dueDate: true,
+    });
+
+    if (isInvoiceDisabled) {
       setError("Project, amount and due date are required.");
       setSuccess("");
       return;
@@ -213,8 +230,14 @@ function App() {
 
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
 
+      setInvoiceProjectId("");
       setAmount("");
       setDueDate("");
+      setInvoiceTouched({
+        project: false,
+        amount: false,
+        dueDate: false,
+      });
       setSuccess("Invoice created");
       fetchInvoices();
     } catch (err) {
@@ -460,6 +483,12 @@ function App() {
                 <select
                   value={invoiceProjectId}
                   onChange={(e) => setInvoiceProjectId(e.target.value)}
+                  onBlur={() =>
+                    setInvoiceTouched((prev) => ({
+                      ...prev,
+                      project: true,
+                    }))
+                  }
                   className="w-full cursor-pointer rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                 >
                   <option value="">Select project</option>
@@ -469,6 +498,11 @@ function App() {
                     </option>
                   ))}
                 </select>
+                {invoiceTouched.project && isInvoiceProjectEmpty && (
+                  <p className="mt-1 text-xs text-red-500">
+                    Project is required.
+                  </p>
+                )}
               </div>
 
               <div>
@@ -480,8 +514,19 @@ function App() {
                   placeholder="10000"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
+                  onBlur={() =>
+                    setInvoiceTouched((prev) => ({
+                      ...prev,
+                      amount: true,
+                    }))
+                  }
                   className="w-full rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                 />
+                {invoiceTouched.amount && isAmountEmpty && (
+                  <p className="mt-1 text-xs text-red-500">
+                    Amount is required.
+                  </p>
+                )}
               </div>
 
               <div>
@@ -492,8 +537,19 @@ function App() {
                   type="date"
                   value={dueDate}
                   onChange={(e) => setDueDate(e.target.value)}
+                  onBlur={() =>
+                    setInvoiceTouched((prev) => ({
+                      ...prev,
+                      dueDate: true,
+                    }))
+                  }
                   className="w-full cursor-pointer rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                 />
+                {invoiceTouched.dueDate && isDueDateEmpty && (
+                  <p className="mt-1 text-xs text-red-500">
+                    Due date is required.
+                  </p>
+                )}
               </div>
             </div>
 
