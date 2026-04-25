@@ -2,18 +2,27 @@
 
 ## Overview
 シンプルなプロジェクト管理アプリです。  
-React + AWS (API Gateway / Lambda / DynamoDB) を使ってCRUD機能を実装しています。  
+React + AWS (API Gateway / Lambda / DynamoDB / Cognito) を使ってCRUD機能を実装しています。  
 フロントエンドとサーバーレスバックエンドを統合したアプリです。
+
+---
+
+## Architecture
+
+![architecture](./architecture.png)
+
+Serverless architecture using AWS (API Gateway, Lambda, DynamoDB, Cognito)
 
 ---
 
 ## Tech Stack
 
-- React (Vite)
+- React (Vite / JavaScript / JSX)
 - Tailwind CSS
 - AWS API Gateway
-- AWS Lambda
+- AWS Lambda (Node.js)
 - Amazon DynamoDB
+- Amazon Cognito
 
 ---
 
@@ -25,6 +34,9 @@ React + AWS (API Gateway / Lambda / DynamoDB) を使ってCRUD機能を実装し
 - プロジェクト削除
 - ステータスフィルター
 - 検索機能（プロジェクト名 / クライアント名）
+- 請求書管理（作成 / 更新 / 削除）
+- ユーザー認証（Cognito + JWT）
+- ユーザーごとのデータ分離
 
 ---
 
@@ -54,8 +66,15 @@ npm run dev
 ## API
 
 ```
-GET    /projects              # プロジェクト一覧取得
-POST   /projects              # プロジェクト作成
-PUT    /projects/{projectId}  # ステータス更新
-DELETE /projects/{projectId}  # 削除
+# Projects
+GET    /projects
+POST   /projects
+PUT    /projects/{projectId}
+DELETE /projects/{projectId}
+
+# Invoices
+GET    /invoices
+POST   /invoices
+PUT    /invoices/{invoiceId}
+DELETE /invoices/{invoiceId}
 ```
