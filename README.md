@@ -11,8 +11,6 @@ React + AWS (API Gateway / Lambda / DynamoDB / Cognito) を使ってCRUD機能�
 
 ![architecture](./architecture.png)
 
-Serverless architecture using AWS (API Gateway, Lambda, DynamoDB, Cognito)
-
 ---
 
 ## Tech Stack
