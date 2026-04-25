@@ -45,6 +45,8 @@ function App() {
   const [filter, setFilter] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
 
+  const isInvoiceDisabled = !invoiceProjectId || !amount.trim() || !dueDate;
+
   useEffect(() => {
     if (success) {
       const timer = setTimeout(() => setSuccess(""), 3000);
@@ -501,7 +503,8 @@ function App() {
 
             <button
               type="submit"
-              className="mt-5 cursor-pointer rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700"
+              disabled={isInvoiceDisabled}
+              className="mt-5 cursor-pointer rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white transition hover:bg-slate-700 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
             >
               Create Invoice
             </button>
@@ -549,13 +552,13 @@ function App() {
                             invoice.status
                           )
                         }
-                        className="cursor-pointer rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-500"
+                        className="cursor-pointer rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-500 active:scale-95"
                       >
                         Update
                       </button>
                       <button
                         onClick={() => handleDeleteInvoice(invoice.invoiceId)}
-                        className="cursor-pointer rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500"
+                        className="cursor-pointer rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500 active:scale-95"
                       >
                         Delete
                       </button>
