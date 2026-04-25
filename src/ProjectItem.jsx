@@ -28,7 +28,7 @@ function ProjectItem({ project, onDelete, onUpdateStatus }) {
           <div className="flex items-center gap-2 text-sm text-slate-600">
             <span className="font-medium text-slate-800">Status:</span>
 
-            {/* ここが神改善 */}
+            {/* ステータスクリックで変更 */}
             <span
               onClick={() =>
                 onUpdateStatus(project.projectId, project.status)
@@ -51,14 +51,14 @@ function ProjectItem({ project, onDelete, onUpdateStatus }) {
             onClick={() =>
               onUpdateStatus(project.projectId, project.status)
             }
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-500 active:scale-95"
+            className="cursor-pointer rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-500 active:scale-95"
           >
             Update
           </button>
 
           <button
             onClick={() => onDelete(project.projectId)}
-            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500 active:scale-95"
+            className="cursor-pointer rounded-lg bg-red-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-red-500 active:scale-95"
           >
             Delete
           </button>
